@@ -66,9 +66,6 @@ public class BoxObj extends GameObj implements Observer {
 
     public void update() {
         collisionAction();
-        if (type != '0' && falling) {
-            fall();
-        }
     }
 
     @Override
@@ -79,6 +76,10 @@ public class BoxObj extends GameObj implements Observer {
     public void draw(Graphics g, ImageObserver obs) {
         if (visible) {
             g.drawImage(sprite[frame], x, y, obs);
+
+            if (type != '0' && falling) {
+                fall();
+            }
         }
     }
 }
