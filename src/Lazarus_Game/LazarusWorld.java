@@ -80,7 +80,7 @@ public class LazarusWorld extends GameWindow {
             tempImg = convertToBuffered(sprites.get("Button"));
             StopSprt = convertToSprite(tempImg, 40, 1);
 
-            BufferedImage[][] BoxType = {CardSprt, MetalSprt, StoneSprt, WoodSprt};
+            BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
 
             playerAry.add(new PlayerObj(LazaSprtStand,LazaSprtLeft,LazaSprtRight,LazaSprtJumpLeft,LazaSprtJumpRight,
                     LazaSprtSquished,LazaSprtAfraid,keys,speed));
@@ -88,7 +88,7 @@ public class LazarusWorld extends GameWindow {
             loadMap("Lazarus_Game/Resource/MapStart.txt", 40, 40);
 
             int rand = ThreadLocalRandom.current().nextInt(0, 4);
-            boxAry.add(new BoxObj(BoxType[rand], 200, 0, speed, (char)(rand + 1))); //0,440
+            boxAry.add(new BoxObj(BoxType[rand], 200, 0, speed, (char)(rand + 49), true)); //0,440
 
             playerAry.get(0).setXY(280,360);
 
@@ -147,11 +147,15 @@ public class LazarusWorld extends GameWindow {
         for (int i = 0; i < boxAry.size(); i++) {
             for (int j = 1; j < boxAry.size(); j++) {
                 if (j != i) {
-                    if (checkCollision(boxAry.get(i), boxAry.get(j), boxAry.get(j).getType())){
+                    if (boxAry.get(j).getType() == '0') {
+                        checkCollision(boxAry.get(i), boxAry.get(j), '0');
+                    }
+                    /*if (checkCollision(boxAry.get(i), boxAry.get(j), boxAry.get(j).getType())){
 
                         sfx = new GameSound(2, "/Lazarus_Game/Resource/Wall.wav");
                         sfx.play();
-                    }
+                    }*/
+                    boxAry.get(i).update();
                 }
             }
         }
@@ -175,7 +179,7 @@ public class LazarusWorld extends GameWindow {
                             x += tileX;
                             break;
                         case 'x':
-                            boxAry.add(new BoxObj(WallSprt, x, y, speed, '0'));
+                            boxAry.add(new BoxObj(WallSprt, x, y, speed, '0', false));
                             x += tileX;
                             break;
                         case 's':

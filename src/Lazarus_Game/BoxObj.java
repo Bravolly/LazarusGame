@@ -12,19 +12,20 @@ import java.util.Observer;
  * Created by Bravolly Pich.
  */
 public class BoxObj extends GameObj implements Observer {
-    char type; //0: wall, 1: card, 2: metal, 3: stone, 4: wood
-    boolean falling = true;
+    char type; //0: wall, 1: card, 2: wood, 3: stone, 4: metal
+    boolean falling;
 
     public BoxObj(BufferedImage[] sprite) {
         super(sprite);
     }
 
-    public BoxObj(BufferedImage[] sprite, int x, int y, int speed, char type) {
+    public BoxObj(BufferedImage[] sprite, int x, int y, int speed, char type, boolean fall) {
         super(sprite);
-        setX(x);
-        setY(y);
+        this.x = x;
+        this.y = y;
         this.speed = speed;
         this.type = type;
+        this.falling = fall;
     }
 
     /**
