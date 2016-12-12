@@ -225,7 +225,7 @@ public class LazarusWorld extends GameWindow {
     public void draw() {
         lazBoxCheck();
         boxBoxCheck();
-
+//
         drawBG();
         drawWall();
         drawStop();
