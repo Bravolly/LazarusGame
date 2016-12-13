@@ -17,6 +17,7 @@ public class PlayerObj extends GameObj implements Observer {
     char direction = '~', preDirection = '3';
     int[] keys;
     boolean dead = false;
+    GameSound sfx;
 
     BufferedImage[] spriteLeft;
     BufferedImage[] spriteRight;
@@ -48,9 +49,8 @@ public class PlayerObj extends GameObj implements Observer {
     public void collisionAction() {
         switch (collisionType) {
             case '0':
-                wallCollision();
-            case 'j':
-                jumpBox();
+                //wallCollision();
+                jumpWall();
             default:
                 break;
         }
@@ -62,11 +62,31 @@ public class PlayerObj extends GameObj implements Observer {
         setXY(tempX, tempY);
     }
 
-    public void jumpBox() {
-        if (preDirection == 2);
-            //jumpLeft();
-        else;
-            //jumpRight();
+    public void jumpWall() {
+        if (preDirection == '2')
+            jumpLeft();
+        else if (preDirection == '3')
+            jumpRight();
+    }
+
+    public void jumpLeft() {
+        direction = '0';
+        preDirection = '2';
+        setX(getX() - speed);
+
+        if (frame > 7)
+            frame = 0;
+
+    }
+
+    public void jumpRight() {
+        direction = '1';
+        preDirection = '3';
+
+        setX(getX() + speed);
+
+        if (frame > 7)
+            frame = 0;
     }
 
     public void moveLeft() {
@@ -139,6 +159,8 @@ public class PlayerObj extends GameObj implements Observer {
 
                     if (frame == 0) {
                         if (visible) {
+                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                            sfx.play();
                             tempX = this.x;
                             tempY = this.y;
                             moveLeft();
@@ -147,6 +169,8 @@ public class PlayerObj extends GameObj implements Observer {
                 } else if (keyPressed == keys[3]) {
                     if (frame == 0) {
                         if (visible) {
+                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                            sfx.play();
                             tempX = this.x;
                             tempY = this.y;
                             moveRight();
@@ -163,7 +187,29 @@ public class PlayerObj extends GameObj implements Observer {
         } else if (visible) {
 
             switch (direction) {
+                case '0':
+                    if ((this.x % 40) != 0) {
+                        g.drawImage(spriteJumpLeft[frame],x-20,y-40,obs);
+                        jumpLeft();
+                        frame++;
+                    } else {
+                        frame = 0;
+                        direction = '~';
+                        setY(y - 40);
+                        g.drawImage(sprite[frame],x,y,obs);
+                    }
+                    break;
                 case '1':
+                    if ((this.x % 40) != 0) {
+                        g.drawImage(spriteJumpRight[frame],x-20,y-40,obs);
+                        jumpRight();
+                        frame++;
+                    } else {
+                        frame = 0;
+                        direction = '~';
+                        setY(y - 40);
+                        g.drawImage(sprite[frame],x,y,obs);
+                    }
                     break;
                 case '2':
                     if ((this.x % 40) != 0) {
@@ -186,7 +232,6 @@ public class PlayerObj extends GameObj implements Observer {
                         direction = '~';
                         g.drawImage(sprite[frame],x,y,obs);
                     }
-
                     break;
                 default:
                     g.drawImage(sprite[0], x, y, obs);
