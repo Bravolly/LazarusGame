@@ -13,6 +13,7 @@ import java.util.Observer;
  */
 public class BoxObj extends GameObj implements Observer {
     char type; //0: wall, 1: card, 2: wood, 3: stone, 4: metal
+    int tempX, tempY;
     boolean falling;
 
     public BoxObj(BufferedImage[] sprite) {
@@ -21,8 +22,9 @@ public class BoxObj extends GameObj implements Observer {
 
     public BoxObj(BufferedImage[] sprite, int x, int y, int speed, char type, boolean fall) {
         super(sprite);
-        this.x = x;
-        this.y = y;
+        setXY(x,y);
+        tempX = x;
+        tempY = y;
         this.speed = speed;
         this.type = type;
         this.falling = fall;
@@ -36,6 +38,7 @@ public class BoxObj extends GameObj implements Observer {
         switch (collisionType) {
             case '0':
                 falling = false;
+                setXY(tempX,tempY);
                 break;
             case '1':
                 visible = false;
@@ -46,7 +49,8 @@ public class BoxObj extends GameObj implements Observer {
     }
 
     public void fall() {
-        y += speed;
+        tempY = y;
+        setY(y + speed);
     }
 
     public boolean setFalling(boolean b) {
@@ -78,7 +82,7 @@ public class BoxObj extends GameObj implements Observer {
         if (visible) {
             g.drawImage(sprite[frame], x, y, obs);
 
-            if (type != '0' && falling) {
+            if (falling) {
                 fall();
             }
         }

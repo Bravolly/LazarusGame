@@ -88,7 +88,7 @@ public class LazarusWorld extends GameWindow {
             loadMap("Lazarus_Game/Resource/MapStart.txt", 40, 40);
 
             int rand = ThreadLocalRandom.current().nextInt(0, 4);
-            boxAry.add(new BoxObj(BoxType[rand], 200, 0, speed, (char)(rand + 49), true)); //0,440
+            boxAry.add(new BoxObj(BoxType[rand], 200, 40, speed, (char)(rand + 49), true)); //0,440
 
             playerAry.get(0).setXY(280,360);
 
@@ -124,6 +124,8 @@ public class LazarusWorld extends GameWindow {
     public boolean checkCollision(GameObj obj1, GameObj obj2, char type) {
 
         if (obj1.box.intersects(obj2.box)) {
+            System.out.println("obj1:\n" + obj1.getX() + " , " + obj1.getY());
+            System.out.println("obj2:\n" + obj2.getX() + " , " + obj2.getY());
             obj1.setCollision(type);
 
             return true;
@@ -145,18 +147,19 @@ public class LazarusWorld extends GameWindow {
 
     public void boxBoxCheck() {
         for (int i = 0; i < boxAry.size(); i++) {
-            for (int j = 1; j < boxAry.size(); j++) {
-                if (j != i) {
-                    if (boxAry.get(j).getType() == '0') {
-                        checkCollision(boxAry.get(i), boxAry.get(j), '0');
+            for (int j = 0; j < boxAry.size(); j++) {
+                if (j == i) {
+                }else{
+                    if (boxAry.get(i).isFalling()) {//if (boxAry.get(i).getType() != '0') {
+                        checkCollision(boxAry.get(i), boxAry.get(j), boxAry.get(j).getType());
                     }
                     /*if (checkCollision(boxAry.get(i), boxAry.get(j), boxAry.get(j).getType())){
 
                         sfx = new GameSound(2, "/Lazarus_Game/Resource/Wall.wav");
                         sfx.play();
                     }*/
-                    boxAry.get(i).update();
                 }
+                boxAry.get(i).update();
             }
         }
     }
@@ -229,7 +232,7 @@ public class LazarusWorld extends GameWindow {
     public void draw() {
         lazBoxCheck();
         boxBoxCheck();
-//
+
         drawBG();
         drawWall();
         drawStop();
