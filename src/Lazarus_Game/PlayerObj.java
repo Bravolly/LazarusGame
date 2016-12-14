@@ -62,8 +62,7 @@ public class PlayerObj extends GameObj implements Observer {
                 }
                 break;
             case '1':
-                falling = false;
-                setY(tempY);
+                dead();
                 break;
             default:
                 break;
@@ -111,14 +110,6 @@ public class PlayerObj extends GameObj implements Observer {
 
         if (frame > 7)
             frame = 0;
-
-        /*if (frame < 7) {
-            //frame++;
-            setX(getX() - speed);
-        } else {
-            frame = 0;
-            setX(getX() - speed);
-        }*/
     }
 
     public void moveRight() {
@@ -129,23 +120,6 @@ public class PlayerObj extends GameObj implements Observer {
 
         if (frame > 7)
             frame = 0;
-
-        /*if (frame < 7) {
-            //frame++;
-            setX(getX() + speed);
-        } else {
-            frame = 0;
-            setX(getX() + speed);
-        }*/
-    }
-
-    public char getDirection() {
-        return preDirection;
-    }
-
-    public void setBound(int x, int y) {
-        box.x = x;
-        box.y = y;
     }
 
     public void fall() {
@@ -159,6 +133,19 @@ public class PlayerObj extends GameObj implements Observer {
 
     public boolean isFalling() {
         return falling;
+    }
+
+    public char getDirection() {
+        return preDirection;
+    }
+
+    public void setBound(int x, int y) {
+        box.x = x;
+        box.y = y;
+    }
+
+    public void dying() {
+
     }
 
     public void dead() {
@@ -216,67 +203,76 @@ public class PlayerObj extends GameObj implements Observer {
 
     @Override
     public void draw(Graphics g, ImageObserver obs) {
-        if (dead) {
-        } else if (visible) {
+        if (visible) {
+            if (dead) {
+                if (frame != 10) {
+                    g.drawImage(spriteSquished[frame], x, y, obs);
+                    frame++;
+                } else {
+                    g.drawImage(spriteSquished[frame], x, y, obs);
+                }
 
-            switch (direction) {
-                case '0':
-                    if ((this.x % 40) != 0) {
-                        g.drawImage(spriteJumpLeft[frame],x-20,y-40,obs);
-                        jumpLeft();
-                        frame++;
-                    } else {
-                        frame = 0;
-                        direction = '~';
-                        setY(y - 40);
-                        g.drawImage(sprite[frame],x,y,obs);
-                        falling = true;
-                    }
-                    break;
-                case '1':
-                    if ((this.x % 40) != 0) {
-                        g.drawImage(spriteJumpRight[frame],x-20,y-40,obs);
-                        jumpRight();
-                        frame++;
-                    } else {
-                        frame = 0;
-                        direction = '~';
-                        setY(y - 40);
-                        g.drawImage(sprite[frame],x,y,obs);
-                        falling = true;
-                    }
-                    break;
-                case '2':
-                    if ((this.x % 40) != 0) {
-                        g.drawImage(spriteLeft[frame],x-20,y-40,obs);
-                        moveLeft();
-                        frame++;
-                    } else {
-                        frame = 0;
-                        direction = '~';
-                        g.drawImage(sprite[frame],x,y,obs);
-                        falling = true;
-                    }
-                    break;
-                case '3':
-                    if ((this.x % 40) != 0) {
-                        g.drawImage(spriteRight[frame],x-20,y-40,obs);
-                        moveRight();
-                        frame++;
-                    } else {
-                        frame = 0;
-                        direction = '~';
-                        g.drawImage(sprite[frame],x,y,obs);
-                        falling = true;
-                    }
-                    break;
-                default:
-                    g.drawImage(sprite[0], x, y, obs);
-                    break;
-            }
+            } else {
+                switch (direction) {
+                    case '0':
+                        if ((this.x % 40) != 0) {
+                            g.drawImage(spriteJumpLeft[frame], x - 20, y - 40, obs);
+                            jumpLeft();
+                            frame++;
+                        } else {
+                            frame = 0;
+                            direction = '~';
+                            setY(y - 40);
+                            g.drawImage(sprite[frame], x, y, obs);
+                            falling = true;
+                        }
+                        break;
+                    case '1':
+                        if ((this.x % 40) != 0) {
+                            g.drawImage(spriteJumpRight[frame], x - 20, y - 40, obs);
+                            jumpRight();
+                            frame++;
+                        } else {
+                            frame = 0;
+                            direction = '~';
+                            setY(y - 40);
+                            g.drawImage(sprite[frame], x, y, obs);
+                            falling = true;
+                        }
+                        break;
+                    case '2':
+                        if ((this.x % 40) != 0) {
+                            g.drawImage(spriteLeft[frame], x - 20, y - 40, obs);
+                            moveLeft();
+                            frame++;
+                        } else {
+                            frame = 0;
+                            direction = '~';
+                            g.drawImage(sprite[frame], x, y, obs);
+                            falling = true;
+                        }
+                        break;
+                    case '3':
+                        if ((this.x % 40) != 0) {
+                            g.drawImage(spriteRight[frame], x - 20, y - 40, obs);
+                            moveRight();
+                            frame++;
+                        } else {
+                            frame = 0;
+                            direction = '~';
+                            g.drawImage(sprite[frame], x, y, obs);
+                            falling = true;
+                        }
+                        break;
+                    default:
+                        g.drawImage(sprite[0], x, y, obs);
+                        break;
+                }
 
-            if (falling) {
-                fall();
+                if (falling) {
+                    fall();
+                }
+
             }
         }
     }
