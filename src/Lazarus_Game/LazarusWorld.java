@@ -138,11 +138,11 @@ public class LazarusWorld extends GameWindow {
 
         for (int i = 0; i < boxAry.size(); i++) {
             if (checkCollision(playerAry.get(0), boxAry.get(i), '0')){
+                System.out.println("laza collide" + playerAry.get(0).getBounds());
 
+                playerAry.get(0).update();
             }
         }
-
-        playerAry.get(0).update();
     }
 
     public void boxBoxCheck() {
