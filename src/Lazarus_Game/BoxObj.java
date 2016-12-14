@@ -38,7 +38,7 @@ public class BoxObj extends GameObj implements Observer {
         switch (collisionType) {
             case '0':
                 falling = false;
-                setXY(tempX,tempY);
+                setY(tempY);
                 break;
             case '1':
                 visible = false;

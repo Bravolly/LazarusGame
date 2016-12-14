@@ -16,14 +16,11 @@ public class PlayerObj extends GameObj implements Observer {
     int tempX, tempY;
     char direction = '~', preDirection = '3';
     int[] keys;
+    boolean falling;
     boolean dead = false;
+    GameSound sfx;
 
-    BufferedImage[] spriteLeft;
-    BufferedImage[] spriteRight;
-    BufferedImage[] spriteJumpLeft;
-    BufferedImage[] spriteJumpRight;
-    BufferedImage[] spriteSquished;
-    BufferedImage[] spriteAfraid;
+    BufferedImage[] spriteLeft, spriteRight, spriteJumpLeft, spriteJumpRight, spriteSquished, spriteAfraid;
 
     public PlayerObj(BufferedImage[] sprite0, BufferedImage[] spriteLeft, BufferedImage[] spriteRight,
                      BufferedImage[] spriteJumpLeft, BufferedImage[] spriteJumpRight,
@@ -48,9 +45,18 @@ public class PlayerObj extends GameObj implements Observer {
     public void collisionAction() {
         switch (collisionType) {
             case '0':
-                wallCollision();
-            case 'j':
-                jumpBox();
+                //wallCollision();
+                if (falling) {
+                    falling = false;
+                    setY(tempY);
+                } else {
+                    jumpWall();
+                }
+                break;
+            case '1':
+                falling = false;
+                setY(tempY);
+                break;
             default:
                 break;
         }
@@ -62,11 +68,31 @@ public class PlayerObj extends GameObj implements Observer {
         setXY(tempX, tempY);
     }
 
-    public void jumpBox() {
-        if (preDirection == 2);
-            //jumpLeft();
-        else;
-            //jumpRight();
+    public void jumpWall() {
+        if (preDirection == '2')
+            jumpLeft();
+        else if (preDirection == '3')
+            jumpRight();
+    }
+
+    public void jumpLeft() {
+        direction = '0';
+        preDirection = '0';
+        setX(getX() - speed);
+
+        if (frame > 7)
+            frame = 0;
+
+    }
+
+    public void jumpRight() {
+        direction = '1';
+        preDirection = '1';
+
+        setX(getX() + speed);
+
+        if (frame > 7)
+            frame = 0;
     }
 
     public void moveLeft() {
@@ -108,6 +134,19 @@ public class PlayerObj extends GameObj implements Observer {
         return preDirection;
     }
 
+    public void fall() {
+        tempY = y;
+        setY(y + speed);
+    }
+
+    public boolean setFalling(boolean b) {
+        return falling = b;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+
     public void dead() {
         dead = true;
     }
@@ -137,16 +176,20 @@ public class PlayerObj extends GameObj implements Observer {
 
                 } else if (keyPressed == keys[2]) {
 
-                    if (frame == 0) {
+                    if (frame == 0 && !falling) {
                         if (visible) {
+                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                            sfx.play();
                             tempX = this.x;
                             tempY = this.y;
                             moveLeft();
                         }
                     }
                 } else if (keyPressed == keys[3]) {
-                    if (frame == 0) {
+                    if (frame == 0 && !falling) {
                         if (visible) {
+                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                            sfx.play();
                             tempX = this.x;
                             tempY = this.y;
                             moveRight();
@@ -163,7 +206,29 @@ public class PlayerObj extends GameObj implements Observer {
         } else if (visible) {
 
             switch (direction) {
+                case '0':
+                    if ((this.x % 40) != 0) {
+                        g.drawImage(spriteJumpLeft[frame],x-20,y-40,obs);
+                        jumpLeft();
+                        frame++;
+                    } else {
+                        frame = 0;
+                        direction = '~';
+                        setY(y - 40);
+                        g.drawImage(sprite[frame],x,y,obs);
+                    }
+                    break;
                 case '1':
+                    if ((this.x % 40) != 0) {
+                        g.drawImage(spriteJumpRight[frame],x-20,y-40,obs);
+                        jumpRight();
+                        frame++;
+                    } else {
+                        frame = 0;
+                        direction = '~';
+                        setY(y - 40);
+                        g.drawImage(sprite[frame],x,y,obs);
+                    }
                     break;
                 case '2':
                     if ((this.x % 40) != 0) {
@@ -174,6 +239,7 @@ public class PlayerObj extends GameObj implements Observer {
                         frame = 0;
                         direction = '~';
                         g.drawImage(sprite[frame],x,y,obs);
+                        falling = true;
                     }
                     break;
                 case '3':
@@ -185,12 +251,16 @@ public class PlayerObj extends GameObj implements Observer {
                         frame = 0;
                         direction = '~';
                         g.drawImage(sprite[frame],x,y,obs);
+                        falling = true;
                     }
-
                     break;
                 default:
                     g.drawImage(sprite[0], x, y, obs);
                     break;
+            }
+
+            if (falling) {
+                fall();
             }
         }
     }
