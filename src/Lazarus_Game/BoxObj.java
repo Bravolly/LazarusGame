@@ -12,19 +12,22 @@ import java.util.Observer;
  * Created by Bravolly Pich.
  */
 public class BoxObj extends GameObj implements Observer {
-    char type; //0: wall, 1: card, 2: metal, 3: stone, 4: wood
-    boolean falling = true;
+    char type; //0: wall, 1: card, 2: wood, 3: stone, 4: metal
+    int tempX, tempY;
+    boolean falling;
 
     public BoxObj(BufferedImage[] sprite) {
         super(sprite);
     }
 
-    public BoxObj(BufferedImage[] sprite, int x, int y, int speed, char type) {
+    public BoxObj(BufferedImage[] sprite, int x, int y, int speed, char type, boolean fall) {
         super(sprite);
-        setX(x);
-        setY(y);
+        setXY(x,y);
+        tempX = x;
+        tempY = y;
         this.speed = speed;
         this.type = type;
+        this.falling = fall;
     }
 
     /**
@@ -35,6 +38,7 @@ public class BoxObj extends GameObj implements Observer {
         switch (collisionType) {
             case '0':
                 falling = false;
+                setXY(tempX,tempY);
                 break;
             case '1':
                 visible = false;
@@ -45,7 +49,8 @@ public class BoxObj extends GameObj implements Observer {
     }
 
     public void fall() {
-        y += speed;
+        tempY = y;
+        setY(y + speed);
     }
 
     public boolean setFalling(boolean b) {
@@ -66,9 +71,6 @@ public class BoxObj extends GameObj implements Observer {
 
     public void update() {
         collisionAction();
-        if (type != '0' && falling) {
-            fall();
-        }
     }
 
     @Override
@@ -79,6 +81,10 @@ public class BoxObj extends GameObj implements Observer {
     public void draw(Graphics g, ImageObserver obs) {
         if (visible) {
             g.drawImage(sprite[frame], x, y, obs);
+
+            if (falling) {
+                fall();
+            }
         }
     }
 }
