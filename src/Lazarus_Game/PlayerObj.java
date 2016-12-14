@@ -16,15 +16,11 @@ public class PlayerObj extends GameObj implements Observer {
     int tempX, tempY;
     char direction = '~', preDirection = '3';
     int[] keys;
+    boolean falling;
     boolean dead = false;
     GameSound sfx;
 
-    BufferedImage[] spriteLeft;
-    BufferedImage[] spriteRight;
-    BufferedImage[] spriteJumpLeft;
-    BufferedImage[] spriteJumpRight;
-    BufferedImage[] spriteSquished;
-    BufferedImage[] spriteAfraid;
+    BufferedImage[] spriteLeft, spriteRight, spriteJumpLeft, spriteJumpRight, spriteSquished, spriteAfraid;
 
     public PlayerObj(BufferedImage[] sprite0, BufferedImage[] spriteLeft, BufferedImage[] spriteRight,
                      BufferedImage[] spriteJumpLeft, BufferedImage[] spriteJumpRight,
@@ -50,7 +46,17 @@ public class PlayerObj extends GameObj implements Observer {
         switch (collisionType) {
             case '0':
                 //wallCollision();
-                jumpWall();
+                if (falling) {
+                    falling = false;
+                    setY(tempY);
+                } else {
+                    jumpWall();
+                }
+                break;
+            case '1':
+                falling = false;
+                setY(tempY);
+                break;
             default:
                 break;
         }
@@ -71,7 +77,7 @@ public class PlayerObj extends GameObj implements Observer {
 
     public void jumpLeft() {
         direction = '0';
-        preDirection = '2';
+        preDirection = '0';
         setX(getX() - speed);
 
         if (frame > 7)
@@ -81,7 +87,7 @@ public class PlayerObj extends GameObj implements Observer {
 
     public void jumpRight() {
         direction = '1';
-        preDirection = '3';
+        preDirection = '1';
 
         setX(getX() + speed);
 
@@ -128,6 +134,19 @@ public class PlayerObj extends GameObj implements Observer {
         return preDirection;
     }
 
+    public void fall() {
+        tempY = y;
+        setY(y + speed);
+    }
+
+    public boolean setFalling(boolean b) {
+        return falling = b;
+    }
+
+    public boolean isFalling() {
+        return falling;
+    }
+
     public void dead() {
         dead = true;
     }
@@ -157,7 +176,7 @@ public class PlayerObj extends GameObj implements Observer {
 
                 } else if (keyPressed == keys[2]) {
 
-                    if (frame == 0) {
+                    if (frame == 0 && !falling) {
                         if (visible) {
                             sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
                             sfx.play();
@@ -167,7 +186,7 @@ public class PlayerObj extends GameObj implements Observer {
                         }
                     }
                 } else if (keyPressed == keys[3]) {
-                    if (frame == 0) {
+                    if (frame == 0 && !falling) {
                         if (visible) {
                             sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
                             sfx.play();
@@ -220,6 +239,7 @@ public class PlayerObj extends GameObj implements Observer {
                         frame = 0;
                         direction = '~';
                         g.drawImage(sprite[frame],x,y,obs);
+                        falling = true;
                     }
                     break;
                 case '3':
@@ -231,11 +251,16 @@ public class PlayerObj extends GameObj implements Observer {
                         frame = 0;
                         direction = '~';
                         g.drawImage(sprite[frame],x,y,obs);
+                        falling = true;
                     }
                     break;
                 default:
                     g.drawImage(sprite[0], x, y, obs);
                     break;
+            }
+
+            if (falling) {
+                fall();
             }
         }
     }
