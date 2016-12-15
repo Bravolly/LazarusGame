@@ -7,9 +7,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,23 +19,19 @@ public class LazarusWorld extends GameWindow {
     private BufferedImage bimg;
     private int w = 656, h = 520;
 
-    /*private enum BoxType {
-        CardBox, MetalBox, StoneBox, WoodBox
-    }*/
-
-
     private static HashMap<String, Image> sprites;
 
-    BufferedImage tempImg;
-    BufferedImage[] LazaSprtStand, LazaSprtAfraid, LazaSprtSquished, LazaSprtLeft, LazaSprtRight, LazaSprtJumpLeft,
-            LazaSprtJumpRight, WallSprt, CardSprt, MetalSprt, StoneSprt, WoodSprt, StopSprt;
-    ArrayList<PlayerObj>  playerAry = new ArrayList<>();
-    ArrayList<BoxObj> boxAry = new ArrayList<>();
-    ArrayList<ButtonObj> stopAry = new ArrayList<>();
+    private BufferedImage tempImg;
+    private ArrayList<PlayerObj>  playerAry = new ArrayList<>();
+    private ArrayList<BoxObj> boxAry = new ArrayList<>();
+    private ArrayList<ButtonObj> stopAry = new ArrayList<>();
+    private int level = 1;
 
-    int[] keys = {KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT};
-    int speed = 5;
-    GameSound sfx;
+    public BufferedImage[] LazaSprtStand, LazaSprtAfraid, LazaSprtSquished, LazaSprtLeft, LazaSprtRight, LazaSprtJumpLeft,
+            LazaSprtJumpRight, WallSprt, CardSprt, MetalSprt, StoneSprt, WoodSprt, StopSprt;
+    public int[] keys = {KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT};
+    public int speed = 5;
+    public GameSound sfx;
 
     @Override
     public void init() {
@@ -83,7 +77,7 @@ public class LazarusWorld extends GameWindow {
             playerAry.add(new PlayerObj(LazaSprtStand,LazaSprtLeft,LazaSprtRight,LazaSprtJumpLeft,LazaSprtJumpRight,
                     LazaSprtSquished,LazaSprtAfraid,keys,speed));
 
-            loadMap("Lazarus_Game/Resource/MapStart.txt", 40, 40);
+            loadMap("/Lazarus_Game/Resource/MapStart.txt", 40, 40);
 
             randomBox();
 
@@ -150,13 +144,26 @@ public class LazarusWorld extends GameWindow {
         return false;
     }
 
+    public void lazaStopCheck() {
+        for (int i = 0; i < stopAry.size(); i++) {
+            if (checkCollision(playerAry.get(0), stopAry.get(i), '~')) {
+                boxAry.clear();
+                stopAry.clear();
+
+                try {
+                    loadMap("/Lazarus_Game/Resource/lvl"+level+".txt", 40, 40);
+                } catch (Exception e) {
+                    System.out.println("Error - Incorrect file name: " + e);
+                }
+            }
+        }
+    }
+
     public void lazBoxCheck() {
 
         for (int i = 0; i < boxAry.size(); i++) {
             if (boxAry.get(i).getVisible()) {
                 if (checkCollision(playerAry.get(0), boxAry.get(i), '0')) {
-                /*System.out.println("laza collide" + playerAry.get(0).getBounds());*/
-
                     playerAry.get(0).update();
                 }
             }
@@ -204,8 +211,9 @@ public class LazarusWorld extends GameWindow {
         int y = 0;
 
         try {
-            FileReader f = new FileReader(fileName);
-            BufferedReader bReader = new BufferedReader(f);
+            /*FileReader f = new FileReader(fileName);*/
+            InputStream in = getClass().getResourceAsStream(fileName);
+            BufferedReader bReader = new BufferedReader(new InputStreamReader(in));
             int b = bReader.read();
 
             while (b > -1) {
@@ -226,6 +234,7 @@ public class LazarusWorld extends GameWindow {
                             break;
                         case 'z':
                             playerAry.get(0).setXY(x,y);
+                            x += tileX;
                             break;
                         default:
                             break;
@@ -268,6 +277,7 @@ public class LazarusWorld extends GameWindow {
      * Check updates for all objects and draw
      */
     public void draw() {
+        lazaStopCheck();
         boxLazaCheck();
         lazBoxCheck();
         boxBoxCheck();

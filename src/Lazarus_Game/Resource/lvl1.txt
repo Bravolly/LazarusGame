@@ -2,11 +2,11 @@
 
 
 
-
-
-x              x
-x              x
-x              x
-x              x
-x              x
+s              s
+xx            xx
+xx            xx
+xx            xx
+xx            xx
+xx        z   xx
 xxxxxxxxxxxxxxxx
+  xxxxxxxxxxxxxxx
