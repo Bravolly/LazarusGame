@@ -29,7 +29,7 @@ public class LazarusWorld extends GameWindow {
 
     public BufferedImage[] LazaSprtStand, LazaSprtAfraid, LazaSprtSquished, LazaSprtLeft, LazaSprtRight, LazaSprtJumpLeft,
             LazaSprtJumpRight, WallSprt, CardSprt, MetalSprt, StoneSprt, WoodSprt, StopSprt;
-    public int[] keys = {KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT};
+    public int[] keys = {KeyEvent.VK_F1, KeyEvent.VK_F2, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT};
     public int speed = 5;
     public GameSound sfx;
 
@@ -84,7 +84,7 @@ public class LazarusWorld extends GameWindow {
             BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
 
             int rand = ThreadLocalRandom.current().nextInt(0, 4);
-            boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true)); //0,440
+            boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true));
 
             gameEvents = new GameEvents();
             gameEvents.addObserver(playerAry.get(0));
@@ -115,6 +115,52 @@ public class LazarusWorld extends GameWindow {
 
     }
 
+    private void isGameReset() {
+        if (playerAry.get(0).getGameReset()) {
+            level = 1;
+            playerAry.get(0).setGameReset(false);
+            playerAry.get(0).notDead();
+            playerAry.get(0).setVisible(true);
+            boxAry.clear();
+            stopAry.clear();
+
+            try {
+                System.out.println("level: "+level);
+                loadMap("/Lazarus_Game/Resource/MapStart.txt", 40, 40);
+            } catch (Exception e) {
+                System.out.println("Error - Incorrect file name: " + e);
+            }
+
+            randomBox();
+
+            BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
+
+            int rand = ThreadLocalRandom.current().nextInt(0, 4);
+            boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true));
+
+        } else if (playerAry.get(0).getMapReset() && level > 1) {
+            playerAry.get(0).setMapReset(false);
+            playerAry.get(0).notDead();
+            playerAry.get(0).setVisible(true);
+            boxAry.clear();
+            stopAry.clear();
+
+            try {
+                System.out.println("level: "+level);
+                loadMap("/Lazarus_Game/Resource/lvl" + (level-1) + ".txt", 40, 40);
+            } catch (Exception e) {
+                System.out.println("Error - Incorrect file name: " + e);
+            }
+
+            randomBox();
+
+            BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
+
+            int rand = ThreadLocalRandom.current().nextInt(0, 4);
+            boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true));
+        }
+    }
+
     public void randomBox() {
         BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
 
@@ -123,11 +169,13 @@ public class LazarusWorld extends GameWindow {
     }
 
     public void dropBox() {
-        if (!boxAry.get(boxAry.size() - 2).isFalling()) {
-            boxAry.get(boxAry.size()-1).setXY(playerAry.get(0).getX() - playerAry.get(0).getX()%40,0);
-            boxAry.get(boxAry.size()-1).setFalling(true);
+        if (!playerAry.get(0).isDead()) {
+            if (!boxAry.get(boxAry.size() - 2).isFalling()) {
+                boxAry.get(boxAry.size() - 1).setXY(playerAry.get(0).getX() - playerAry.get(0).getX() % 40, 0);
+                boxAry.get(boxAry.size() - 1).setFalling(true);
 
-            randomBox();
+                randomBox();
+            }
         }
     }
 
@@ -145,26 +193,37 @@ public class LazarusWorld extends GameWindow {
     }
 
     public void lazaStopCheck() {
-        for (int i = 0; i < stopAry.size(); i++) {
-            if (checkCollision(playerAry.get(0), stopAry.get(i), '~')) {
-                boxAry.clear();
-                stopAry.clear();
+        if (!playerAry.get(0).isDead()) {
+            for (int i = 0; i < stopAry.size(); i++) {
+                if (checkCollision(playerAry.get(0), stopAry.get(i), '~')) {
+                    boxAry.clear();
+                    stopAry.clear();
 
-                try {
-                    loadMap("/Lazarus_Game/Resource/lvl"+level+".txt", 40, 40);
-                } catch (Exception e) {
-                    System.out.println("Error - Incorrect file name: " + e);
+                    try {
+                        loadMap("/Lazarus_Game/Resource/lvl1.txt", 40, 40);
+                    } catch (Exception e) {
+                        System.out.println("Error - Incorrect file name: " + e);
+                    }
+
+                    randomBox();
+
+                    BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
+
+                    int rand = ThreadLocalRandom.current().nextInt(0, 4);
+                    boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true));
+                    level++;
                 }
             }
         }
     }
 
     public void lazBoxCheck() {
-
-        for (int i = 0; i < boxAry.size(); i++) {
-            if (boxAry.get(i).getVisible()) {
-                if (checkCollision(playerAry.get(0), boxAry.get(i), '0')) {
-                    playerAry.get(0).update();
+        if (!playerAry.get(0).isDead()) {
+            for (int i = 0; i < boxAry.size(); i++) {
+                if (boxAry.get(i).getVisible()) {
+                    if (checkCollision(playerAry.get(0), boxAry.get(i), '0')) {
+                        playerAry.get(0).update();
+                    }
                 }
             }
         }
@@ -194,13 +253,14 @@ public class LazarusWorld extends GameWindow {
     }
 
     public void boxLazaCheck() {
-        for (int i = 0; i < boxAry.size(); i++) {
-            if (boxAry.get(i).isFalling() && !playerAry.get(0).isDead()) {
-                if (checkCollision(playerAry.get(0), boxAry.get(i), '1')) {
-                    sfx = new GameSound(2, "/Lazarus_Game/Resource/Squished.wav");
-                    sfx.play();
-                    playerAry.get(0).update();
-                    System.out.println("dead");
+        if (!playerAry.get(0).isDead()) {
+            for (int i = 0; i < boxAry.size(); i++) {
+                if (boxAry.get(i).isFalling() && !playerAry.get(0).isDead()) {
+                    if (checkCollision(playerAry.get(0), boxAry.get(i), '1')) {
+                        sfx = new GameSound(2, "/Lazarus_Game/Resource/Squished.wav");
+                        sfx.play();
+                        playerAry.get(0).update();
+                    }
                 }
             }
         }
@@ -211,7 +271,6 @@ public class LazarusWorld extends GameWindow {
         int y = 0;
 
         try {
-            /*FileReader f = new FileReader(fileName);*/
             InputStream in = getClass().getResourceAsStream(fileName);
             BufferedReader bReader = new BufferedReader(new InputStreamReader(in));
             int b = bReader.read();
@@ -277,6 +336,7 @@ public class LazarusWorld extends GameWindow {
      * Check updates for all objects and draw
      */
     public void draw() {
+        isGameReset();
         lazaStopCheck();
         boxLazaCheck();
         lazBoxCheck();

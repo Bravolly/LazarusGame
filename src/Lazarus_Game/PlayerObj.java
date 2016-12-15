@@ -17,8 +17,11 @@ public class PlayerObj extends GameObj implements Observer {
     char direction = '~', preDirection = '3';
     int[] keys;
     boolean falling = false;
-    boolean jump;
+    boolean jump = false;
     boolean dead = false;
+    boolean gameReset = false;
+    boolean mapReset = false;
+
     GameSound sfx;
 
     BufferedImage[] spriteLeft, spriteRight, spriteJumpLeft, spriteJumpRight, spriteSquished, spriteAfraid;
@@ -152,8 +155,28 @@ public class PlayerObj extends GameObj implements Observer {
         dead = true;
     }
 
+    public void notDead() {
+        dead = false;
+    }
+
     public boolean isDead() {
         return dead;
+    }
+
+    public boolean getGameReset() {
+        return gameReset;
+    }
+
+    public void setGameReset(boolean r) {
+        gameReset = r;
+    }
+
+    public boolean getMapReset() {
+        return mapReset;
+    }
+
+    public void setMapReset(boolean r) {
+        mapReset = r;
     }
 
     public void update() {
@@ -170,31 +193,29 @@ public class PlayerObj extends GameObj implements Observer {
             KeyEvent e = (KeyEvent) ge.event;
             int keyPressed = e.getKeyCode();
 
-            if (!dead) {
-                if (keyPressed == keys[0]) {
+            if (keyPressed == keys[0]) {
+                setGameReset(true);
+            } else if (keyPressed == keys[1]) {
+                setMapReset(true);
+            } else if (keyPressed == keys[2]) {
 
-                } else if (keyPressed == keys[1]) {
-
-                } else if (keyPressed == keys[2]) {
-
-                    if (frame == 0 && !falling) {
-                        if (visible) {
-                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
-                            sfx.play();
-                            lastX = this.x;
-                            lastY = this.y;
-                            moveLeft();
-                        }
+                if (frame == 0 && !falling) {
+                    if (visible) {
+                        sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                        sfx.play();
+                        lastX = this.x;
+                        lastY = this.y;
+                        moveLeft();
                     }
-                } else if (keyPressed == keys[3]) {
-                    if (frame == 0 && !falling) {
-                        if (visible) {
-                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
-                            sfx.play();
-                            lastX = this.x;
-                            lastY = this.y;
-                            moveRight();
-                        }
+                }
+            } else if (keyPressed == keys[3]) {
+                if (frame == 0 && !falling) {
+                    if (visible) {
+                        sfx = new GameSound(2, "/Lazarus_Game/Resource/Move.wav");
+                        sfx.play();
+                        lastX = this.x;
+                        lastY = this.y;
+                        moveRight();
                     }
                 }
             }
@@ -209,6 +230,7 @@ public class PlayerObj extends GameObj implements Observer {
                     g.drawImage(spriteSquished[frame], x, y, obs);
                     frame++;
                 } else {
+                    frame = 0;
                     setVisible(false);
                 }
 
