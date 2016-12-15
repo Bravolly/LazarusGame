@@ -26,6 +26,7 @@ public class LazarusWorld extends GameWindow {
     private ArrayList<BoxObj> boxAry = new ArrayList<>();
     private ArrayList<ButtonObj> stopAry = new ArrayList<>();
     private int level = 1;
+    private boolean showTitle = true;
 
     public BufferedImage[] LazaSprtStand, LazaSprtAfraid, LazaSprtSquished, LazaSprtLeft, LazaSprtRight, LazaSprtJumpLeft,
             LazaSprtJumpRight, WallSprt, CardSprt, MetalSprt, StoneSprt, WoodSprt, StopSprt;
@@ -98,6 +99,7 @@ public class LazarusWorld extends GameWindow {
     /*Functions for loading image resources*/
     private void loadSprites() {
 
+        sprites.put("title", getSprite("/Lazarus_Game/Resource/Title.png"));
         sprites.put("background", getSprite("/Lazarus_Game/Resource/Background.png"));
         sprites.put("LazaStand", getSprite("/Lazarus_Game/Resource/Lazarus_stand.png"));
         sprites.put("LazaAfraid", getSprite("/Lazarus_Game/Resource/Lazarus_afraid_strip10.png"));
@@ -125,7 +127,6 @@ public class LazarusWorld extends GameWindow {
             stopAry.clear();
 
             try {
-                System.out.println("level: "+level);
                 loadMap("/Lazarus_Game/Resource/MapStart.txt", 40, 40);
             } catch (Exception e) {
                 System.out.println("Error - Incorrect file name: " + e);
@@ -146,7 +147,6 @@ public class LazarusWorld extends GameWindow {
             stopAry.clear();
 
             try {
-                System.out.println("level: "+level);
                 loadMap("/Lazarus_Game/Resource/lvl" + (level-1) + ".txt", 40, 40);
             } catch (Exception e) {
                 System.out.println("Error - Incorrect file name: " + e);
@@ -173,7 +173,6 @@ public class LazarusWorld extends GameWindow {
             if (!boxAry.get(boxAry.size() - 2).isFalling()) {
                 boxAry.get(boxAry.size() - 1).setXY(playerAry.get(0).getX() - playerAry.get(0).getX() % 40, 0);
                 boxAry.get(boxAry.size() - 1).setFalling(true);
-
                 randomBox();
             }
         }
@@ -200,7 +199,7 @@ public class LazarusWorld extends GameWindow {
                     stopAry.clear();
 
                     try {
-                        loadMap("/Lazarus_Game/Resource/lvl1.txt", 40, 40);
+                        loadMap("/Lazarus_Game/Resource/lvl" + level + ".txt", 40, 40);
                     } catch (Exception e) {
                         System.out.println("Error - Incorrect file name: " + e);
                     }
@@ -240,6 +239,10 @@ public class LazarusWorld extends GameWindow {
                                 sfx = new GameSound(2, "/Lazarus_Game/Resource/Wall.wav");
                                 sfx.play();
                                 boxAry.get(i).update();
+
+                                if (showTitle) {
+                                    showTitle = false;
+                                }
                             }
                         } else if (checkCollision(boxAry.get(i), boxAry.get(j), '~')){
                             sfx = new GameSound(2, "/Lazarus_Game/Resource/Crush.wav");
@@ -332,21 +335,32 @@ public class LazarusWorld extends GameWindow {
         g2.drawImage(sprites.get("background"), 0, 0, this);
     }
 
+    public void winGame() {
+        g2.drawImage(sprites.get("title"), 70, 90, this);
+    }
+
     /**
      * Check updates for all objects and draw
      */
     public void draw() {
-        isGameReset();
-        lazaStopCheck();
-        boxLazaCheck();
-        lazBoxCheck();
-        boxBoxCheck();
-        dropBox();
-
         drawBG();
-        drawWall();
-        drawStop();
-        playerAry.get(0).draw(g2, this);
+        if (level > 3) {
+            winGame();
+        } else {
+            isGameReset();
+            lazaStopCheck();
+            boxLazaCheck();
+            lazBoxCheck();
+            boxBoxCheck();
+            dropBox();
+
+            drawWall();
+            drawStop();
+            playerAry.get(0).draw(g2, this);
+            if (showTitle) {
+                g2.drawImage(sprites.get("title"), 70, 0, this);
+            }
+        }
     }
 
     @Override
