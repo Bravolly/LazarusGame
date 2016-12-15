@@ -209,7 +209,7 @@ public class PlayerObj extends GameObj implements Observer {
                     g.drawImage(spriteSquished[frame], x, y, obs);
                     frame++;
                 } else {
-                    g.drawImage(spriteSquished[frame], x, y, obs);
+                    setVisible(false);
                 }
 
             } else {

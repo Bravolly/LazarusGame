@@ -80,17 +80,17 @@ public class LazarusWorld extends GameWindow {
             tempImg = convertToBuffered(sprites.get("Button"));
             StopSprt = convertToSprite(tempImg, 40, 1);
 
+            playerAry.add(new PlayerObj(LazaSprtStand,LazaSprtLeft,LazaSprtRight,LazaSprtJumpLeft,LazaSprtJumpRight,
+                    LazaSprtSquished,LazaSprtAfraid,keys,speed));
+
             loadMap("Lazarus_Game/Resource/MapStart.txt", 40, 40);
+
+            randomBox();
 
             BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
 
             int rand = ThreadLocalRandom.current().nextInt(0, 4);
-            boxAry.add(new BoxObj(BoxType[rand], 200, 40, speed, (char)(rand + 49), true)); //0,440
-
-            playerAry.add(new PlayerObj(LazaSprtStand,LazaSprtLeft,LazaSprtRight,LazaSprtJumpLeft,LazaSprtJumpRight,
-                    LazaSprtSquished,LazaSprtAfraid,keys,speed));
-
-            playerAry.get(0).setXY(280,360);
+            boxAry.add(new BoxObj(BoxType[rand], playerAry.get(0).getX(), 0, speed, (char)(rand + 49), true)); //0,440
 
             gameEvents = new GameEvents();
             gameEvents.addObserver(playerAry.get(0));
@@ -121,6 +121,22 @@ public class LazarusWorld extends GameWindow {
 
     }
 
+    public void randomBox() {
+        BufferedImage[][] BoxType = {CardSprt, WoodSprt, StoneSprt, MetalSprt};
+
+        int rand = ThreadLocalRandom.current().nextInt(0, 4);
+        boxAry.add(new BoxObj(BoxType[rand], 0, 440, speed, (char)(rand + 49), false)); //0,440
+    }
+
+    public void dropBox() {
+        if (!boxAry.get(boxAry.size() - 2).isFalling()) {
+            boxAry.get(boxAry.size()-1).setXY(playerAry.get(0).getX() - playerAry.get(0).getX()%40,0);
+            boxAry.get(boxAry.size()-1).setFalling(true);
+
+            randomBox();
+        }
+    }
+
     public boolean checkCollision(GameObj obj1, GameObj obj2, char type) {
 
         if (obj1.box.intersects(obj2.box)) {/*
@@ -137,10 +153,12 @@ public class LazarusWorld extends GameWindow {
     public void lazBoxCheck() {
 
         for (int i = 0; i < boxAry.size(); i++) {
-            if (checkCollision(playerAry.get(0), boxAry.get(i), '0')){
+            if (boxAry.get(i).getVisible()) {
+                if (checkCollision(playerAry.get(0), boxAry.get(i), '0')) {
                 /*System.out.println("laza collide" + playerAry.get(0).getBounds());*/
 
-                playerAry.get(0).update();
+                    playerAry.get(0).update();
+                }
             }
         }
     }
@@ -148,27 +166,34 @@ public class LazarusWorld extends GameWindow {
     public void boxBoxCheck() {
         for (int i = 0; i < boxAry.size(); i++) {
             for (int j = 0; j < boxAry.size(); j++) {
-                if (j != i) {
-                    if (boxAry.get(i).isFalling()) {//if (boxAry.get(i).getType() != '0') {
-                        if (checkCollision(boxAry.get(i), boxAry.get(j), boxAry.get(j).getType())) {
-                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Wall.wav");
+                if (j != i && boxAry.get(j).getVisible()) {
+                    if (boxAry.get(i).isFalling()) {
+                        if (boxAry.get(j).getType() > boxAry.get(i).getType() || boxAry.get(j).getType() == '0' ||
+                                boxAry.get(i).getType() == boxAry.get(j).getType()) {
+                            if (checkCollision(boxAry.get(i), boxAry.get(j), '0')) {
+                                sfx = new GameSound(2, "/Lazarus_Game/Resource/Wall.wav");
+                                sfx.play();
+                                boxAry.get(i).update();
+                            }
+                        } else if (checkCollision(boxAry.get(i), boxAry.get(j), '~')){
+                            sfx = new GameSound(2, "/Lazarus_Game/Resource/Crush.wav");
                             sfx.play();
+                            boxAry.get(j).setVisible(false);
                         }
                     }
                 }
-                boxAry.get(i).update();
             }
         }
     }
 
     public void boxLazaCheck() {
         for (int i = 0; i < boxAry.size(); i++) {
-            if (boxAry.get(i).isFalling()) {
+            if (boxAry.get(i).isFalling() && !playerAry.get(0).isDead()) {
                 if (checkCollision(playerAry.get(0), boxAry.get(i), '1')) {
                     sfx = new GameSound(2, "/Lazarus_Game/Resource/Squished.wav");
                     sfx.play();
-
                     playerAry.get(0).update();
+                    System.out.println("dead");
                 }
             }
         }
@@ -191,13 +216,16 @@ public class LazarusWorld extends GameWindow {
                         case ' ':
                             x += tileX;
                             break;
+                        case 's':
+                            stopAry.add(new ButtonObj(StopSprt, x, y));
+                            x += tileX;
+                            break;
                         case 'x':
                             boxAry.add(new BoxObj(WallSprt, x, y, speed, '0', false));
                             x += tileX;
                             break;
-                        case 's':
-                            stopAry.add(new ButtonObj(StopSprt, x, y));
-                            x += tileX;
+                        case 'z':
+                            playerAry.get(0).setXY(x,y);
                             break;
                         default:
                             break;
@@ -243,6 +271,7 @@ public class LazarusWorld extends GameWindow {
         boxLazaCheck();
         lazBoxCheck();
         boxBoxCheck();
+        dropBox();
 
         drawBG();
         drawWall();

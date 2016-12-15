@@ -5,8 +5,8 @@
 
 s              s
 x              x
-x          x   x
-x         xx   x
-x  x     xxx   x
+x              x
+x              x
+x         z     x
 xxxxxxxxxxxxxxxx
   xxxxxxxxxxxxxxx

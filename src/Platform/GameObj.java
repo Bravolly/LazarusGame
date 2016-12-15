@@ -122,6 +122,10 @@ public class GameObj {
         visible = v;
     }
 
+    public boolean getVisible() {
+        return visible;
+    }
+
     public void setFrame(int i) {
         frame = i;
     }
